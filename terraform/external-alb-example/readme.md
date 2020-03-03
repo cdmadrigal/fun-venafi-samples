@@ -7,6 +7,7 @@ A couple things you need to do to get this to work:
 - Edit the AWS provider so that you have access to your AWS account. It's already halfway configured to use access and secret keys but if you wish to use env variables or a credentials file feel free to edit the configurations.
 
 Once those two things are done, you can run the plans like any other terraform plan. 
+Make sure both Terraform templates are in the same folder. vpc-aws-creation.tf creates the VPC needed for aws-main.tf to run properly.
 
 Do the following:
 - terraform init        ## This will initialize the providers 
