@@ -12,7 +12,12 @@ provider "aws" {
     secret_key = ""
 }
 
-## Search for the latest Amazon Linux 2 image. No need to hardcode anything.
+## Keypair to SSH in to jumpserver to access internal load balancer.
+variable "key_pair" {
+    type = "string"
+}
+
+## Search for the latest Amazon Linux 2 image. No need to hardcore anything.
 data "aws_ami" "linux" {
     most_recent = "true"
     owners =["amazon"]
@@ -23,7 +28,7 @@ data "aws_ami" "linux" {
     }
 }
 
-## Creates a certificate using the venafi provider for defined CN.
+## Creates a certificate using the Venafi provider for defined CN.
 resource "venafi_certificate" "webserver" {
     common_name = "terraform.example.com"
     algorithm = "RSA"
@@ -51,14 +56,14 @@ resource "aws_security_group" "allow_tls" {
         from_port = 443
         to_port = 443
         protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = ["${module.vpc.vpc_cidr_block}"]
     }
 
     ingress {
         from_port = 80
         to_port = 80
         protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = ["${module.vpc.vpc_cidr_block}"]
     }
 
     egress {
@@ -90,9 +95,30 @@ resource "aws_security_group" "ec2-instance-http" {
     }
 }
 
+## Security group for EC2 instance (Jumpserver). This security only allows SSH access; use the keypair you defined as a variable to access this box.
+resource "aws_security_group" "ec2-jumpbox-sg" {
+    name = "ec2-jumpbox-sg"
+    description = "Allows SSH access to jumpbox."
+    vpc_id = "${module.vpc.vpc_id}" 
+
+    ingress {
+        from_port = 22
+        to_port = 22
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    egress {
+        from_port = 0
+        to_port = 0
+        protocol = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+}
+
 ## AWS Load Balancer listener for HTTPS. This is secured with the Venafi created certificate that was imported to ACM.
-resource "aws_lb_listener" "external-listener-https" {
-    load_balancer_arn = "${aws_lb.external-alb.arn}"
+resource "aws_lb_listener" "internal-listener" {
+    load_balancer_arn = "${aws_lb.internal-alb.arn}"
     port = "443"
     protocol = "HTTPS"
     ssl_policy = "ELBSecurityPolicy-2016-08"
@@ -100,13 +126,13 @@ resource "aws_lb_listener" "external-listener-https" {
 
     default_action {
         type = "forward"
-        target_group_arn = "${aws_lb_target_group.external-target.arn}"
+        target_group_arn = "${aws_lb_target_group.internal-target.arn}"
     }
 }
 
 ## AWS Load Balancer listener for HTTP. This redirects HTTP traffic as HTTPS.
-resource "aws_lb_listener" "external-listener-http-redirect" {
-    load_balancer_arn = "${aws_lb.external-alb.arn}"
+resource "aws_lb_listener" "internal-listener-http-redirect" {
+    load_balancer_arn = "${aws_lb.internal-alb.arn}"
     port = "80"
     protocol = "HTTP"
 
@@ -122,36 +148,36 @@ resource "aws_lb_listener" "external-listener-http-redirect" {
 }
 
 ## Target Group for Apache server.
-resource "aws_lb_target_group" "external-target" {
+resource "aws_lb_target_group" "internal-target" {
     name = "tf-example-lb-tg"
     port = 80
     protocol = "HTTP"
     vpc_id = "${module.vpc.vpc_id}"
 }
 
-## Creation of external facing Application Load Balancer.
-resource "aws_lb" "external-alb" {
+## Creation of internal Application Load Balancer.
+resource "aws_lb" "internal-alb" {
     name = "sample-lb-tf"
-    internal = false
+    internal = true
     load_balancer_type = "application"
     security_groups = ["${aws_security_group.allow_tls.id}"]
-    subnets = ["${module.vpc.public_subnets[0]}","${module.vpc.public_subnets[1]}"]
+    subnets = ["${module.vpc.private_subnets[0]}","${module.vpc.private_subnets[1]}"]
 }
 
 ## Target group attachment reference for Apache server and ALB.
 resource "aws_lb_target_group_attachment" "ec2-tg-attachment" {
-    target_group_arn = "${aws_lb_target_group.external-target.arn}"
+    target_group_arn = "${aws_lb_target_group.internal-target.arn}"
     target_id = "${aws_instance.apache-server.id}"
     port = 80
 }
 
-## Apache server EC2 instance.
+## Apache server EC2 instance. This is deployed on a private subnet.
 resource "aws_instance" "apache-server" {
     ami = "${data.aws_ami.linux.id}"
     instance_type = "t2.micro"
     vpc_security_group_ids = ["${aws_security_group.ec2-instance-http.id}"]
-    subnet_id = "${module.vpc.public_subnets[0]}"
-    associate_public_ip_address = true
+    subnet_id = "${module.vpc.private_subnets[0]}"
+    associate_public_ip_address = false
     tags = {
         Name = "Sample Apache Server"
     }
@@ -164,6 +190,19 @@ resource "aws_instance" "apache-server" {
     EOF
 }
 
-output "instance-alb-url" {
-    value = "${aws_lb.external-alb.dns_name}/index.html"
+## Bastion/Jumpbox server EC2 instance. This is deployed on a public subnet. SSH in to this instance to access the apache server.
+resource "aws_instance" "jumpbox" {
+    ami = "${data.aws_ami.linux.id}"
+    instance_type = "t2.micro"
+    key_name = "${var.key_pair}"
+    vpc_security_group_ids = ["${aws_security_group.ec2-jumpbox-sg.id}"]
+    subnet_id = "${module.vpc.public_subnets[0]}"
+    associate_public_ip_address = true
+    tags = {
+        Name = "AWS Jump Server"
+    }
+    user_data = <<EOF
+            #! /bin/bash
+            yum update -y
+    EOF
 }
