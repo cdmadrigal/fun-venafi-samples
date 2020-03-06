@@ -1,0 +1,161 @@
+00WKSMAC150786:Azure cris.madrigal$ packer build --var-file=variables.json --var-file=secret-variables.json -timestamp-ui tpp-golden-image-ami.json 
+azure-arm: output will be in this color.
+
+2020-03-06T09:06:46-08:00: ==> azure-arm: Running builder ...
+2020-03-06T09:06:51-08:00: ==> azure-arm: Getting tokens using device flow
+2020-03-06T09:06:51-08:00: ==> azure-arm: Getting token for https://management.azure.com/
+2020-03-06T09:06:51-08:00: ==> azure-arm: Loading auth token from file: /Users/cris.madrigal/.azure/packer/oauth-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxcmgmt.json
+2020-03-06T09:06:51-08:00: ==> azure-arm: Auth token found in file: /Users/cris.madrigal/.azure/packer/oauth-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxcmgmt.json
+2020-03-06T09:06:52-08:00: ==> azure-arm: Azure token expired. Saving the refreshed token...
+2020-03-06T09:06:52-08:00: ==> azure-arm: Getting tokens using device flow
+2020-03-06T09:06:52-08:00: ==> azure-arm: Getting token for Vault resource
+2020-03-06T09:06:52-08:00: ==> azure-arm: Loading auth token from file: /Users/cris.madrigal/.azure/packer/oauth-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxcvault.json
+2020-03-06T09:06:52-08:00: ==> azure-arm: Auth token found in file: /Users/cris.madrigal/.azure/packer/oauth-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxcvault.json
+2020-03-06T09:06:52-08:00: ==> azure-arm: Azure token expired. Saving the refreshed token...
+2020-03-06T09:06:52-08:00:     azure-arm: Creating Azure Resource Manager (ARM) client ...
+2020-03-06T09:06:52-08:00: ==> azure-arm: WARNING: Zone resiliency may not be supported in West US, checkout the docs at https://docs.microsoft.com/en-us/azure/availability-zones/
+2020-03-06T09:06:52-08:00: ==> azure-arm: Creating resource group ...
+2020-03-06T09:06:52-08:00: ==> azure-arm:  -> ResourceGroupName : 'packer-Resource-Group-6klvrygl45'
+2020-03-06T09:06:52-08:00: ==> azure-arm:  -> Location          : 'West US'
+2020-03-06T09:06:52-08:00: ==> azure-arm:  -> Tags              :
+2020-03-06T09:06:52-08:00: ==> azure-arm:  ->> Release : 19.4
+2020-03-06T09:06:52-08:00: ==> azure-arm:  ->> Name : Base-19.4TPP
+2020-03-06T09:06:55-08:00: ==> azure-arm: Validating deployment template ...
+2020-03-06T09:06:55-08:00: ==> azure-arm:  -> ResourceGroupName : 'packer-Resource-Group-6klvrygl45'
+2020-03-06T09:06:55-08:00: ==> azure-arm:  -> DeploymentName    : 'pkrdp6klvrygl45'
+2020-03-06T09:06:55-08:00: ==> azure-arm: Deploying deployment template ...
+2020-03-06T09:06:55-08:00: ==> azure-arm:  -> ResourceGroupName : 'packer-Resource-Group-6klvrygl45'
+2020-03-06T09:06:55-08:00: ==> azure-arm:  -> DeploymentName    : 'kvpkrdp6klvrygl45'
+2020-03-06T09:07:58-08:00: ==> azure-arm: Getting the certificate's URL ...
+2020-03-06T09:07:58-08:00: ==> azure-arm:  -> Key Vault Name        : 'pkrkv6klvrygl45'
+2020-03-06T09:07:58-08:00: ==> azure-arm:  -> Key Vault Secret Name : 'packerKeyVaultSecret'
+2020-03-06T09:07:58-08:00: ==> azure-arm:  -> Certificate URL       : 'https://pkrkv6klvrygl45.vault.azure.net/secrets/packerKeyVaultSecret/ea75a131e0df41d9985368da57fbd58e'
+2020-03-06T09:07:58-08:00: ==> azure-arm: Setting the certificate's URL ...
+2020-03-06T09:07:58-08:00: ==> azure-arm: Validating deployment template ...
+2020-03-06T09:07:58-08:00: ==> azure-arm:  -> ResourceGroupName : 'packer-Resource-Group-6klvrygl45'
+2020-03-06T09:07:58-08:00: ==> azure-arm:  -> DeploymentName    : 'pkrdp6klvrygl45'
+2020-03-06T09:08:00-08:00: ==> azure-arm: Deploying deployment template ...
+2020-03-06T09:08:00-08:00: ==> azure-arm:  -> ResourceGroupName : 'packer-Resource-Group-6klvrygl45'
+2020-03-06T09:08:00-08:00: ==> azure-arm:  -> DeploymentName    : 'pkrdp6klvrygl45'
+2020-03-06T09:12:04-08:00: ==> azure-arm: Getting the VM's IP address ...
+2020-03-06T09:12:04-08:00: ==> azure-arm:  -> ResourceGroupName   : 'packer-Resource-Group-6klvrygl45'
+2020-03-06T09:12:04-08:00: ==> azure-arm:  -> PublicIPAddressName : 'pkrip6klvrygl45'
+2020-03-06T09:12:04-08:00: ==> azure-arm:  -> NicName             : 'pkrni6klvrygl45'
+2020-03-06T09:12:04-08:00: ==> azure-arm:  -> Network Connection  : 'PublicEndpoint'
+2020-03-06T09:12:04-08:00: ==> azure-arm:  -> IP Address          : '104.42.212.249'
+2020-03-06T09:12:04-08:00: ==> azure-arm: Waiting for WinRM to become available...
+2020-03-06T09:12:18-08:00: ==> azure-arm: #< CLIXML
+2020-03-06T09:12:19-08:00:     azure-arm: WinRM connected.
+2020-03-06T09:12:19-08:00: ==> azure-arm: <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"><Obj S="progress" RefId="0"><TN RefId="0"><T>System.Management.Automation.PSCustomObject</T><T>System.Object</T></TN><MS><I64 N="SourceId">1</I64><PR N="Record"><AV>Preparing modules for first use.</AV><AI>0</AI><Nil /><PI>-1</PI><PC>-1</PC><T>Completed</T><SR>-1</SR><SD> </SD></PR></MS></Obj><Obj S="progress" RefId="1"><TNRef RefId="0" /><MS><I64 N="SourceId">1</I64><PR N="Record"><AV>Preparing modules for first use.</AV><AI>0</AI><Nil /><PI>-1</PI><PC>-1</PC><T>Completed</T><SR>-1</SR><SD> </SD></PR></MS></Obj></Objs>
+2020-03-06T09:12:19-08:00: ==> azure-arm: Connected to WinRM!
+2020-03-06T09:12:19-08:00: ==> azure-arm: Provisioning with Powershell...
+2020-03-06T09:12:19-08:00: ==> azure-arm: Provisioning with powershell script: ./setup-pre-net.ps1
+2020-03-06T09:12:55-08:00:     azure-arm:
+2020-03-06T09:12:55-08:00:     azure-arm:
+2020-03-06T09:12:55-08:00:     azure-arm:     Directory: C:\sources
+2020-03-06T09:12:55-08:00:     azure-arm:
+2020-03-06T09:12:55-08:00:     azure-arm:
+2020-03-06T09:12:55-08:00:     azure-arm: Mode                LastWriteTime         Length Name
+2020-03-06T09:12:55-08:00:     azure-arm: ----                -------------         ------ ----
+2020-03-06T09:12:55-08:00:     azure-arm: d-----         3/6/2020   5:12 PM                sxs
+2020-03-06T09:27:35-08:00:     azure-arm:
+2020-03-06T09:27:35-08:00:     azure-arm: Success       : True
+2020-03-06T09:27:35-08:00:     azure-arm: RestartNeeded : No
+2020-03-06T09:27:35-08:00:     azure-arm: FeatureResult : {.NET Framework 3.5 (includes .NET 2.0 and 3.0), .NET Framework 3.5 Features}
+2020-03-06T09:27:35-08:00:     azure-arm: ExitCode      : Success
+2020-03-06T09:27:35-08:00:     azure-arm:
+2020-03-06T09:28:01-08:00:     azure-arm: Downloading TPP 19.4.0 with user account: cris.madrigal@venafi.com
+2020-03-06T09:38:37-08:00:     azure-arm: Download complete. Unzipping file to Downloads folder now...
+2020-03-06T09:39:25-08:00:     azure-arm: Installing .NET 4.7.2...
+2020-03-06T09:39:38-08:00: ==> azure-arm: Restarting Machine
+2020-03-06T09:39:38-08:00: ==> azure-arm: Waiting for machine to restart...
+2020-03-06T09:39:38-08:00: ==> azure-arm: A system shutdown is in progress.(1115)
+2020-03-06T09:40:08-08:00:     azure-arm: pkrvm6klvrygl45 restarted.
+2020-03-06T09:40:08-08:00: ==> azure-arm: #< CLIXML
+2020-03-06T09:40:08-08:00: ==> azure-arm: <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"><Obj S="progress" RefId="0"><TN RefId="0"><T>System.Management.Automation.PSCustomObject</T><T>System.Object</T></TN><MS><I64 N="SourceId">1</I64><PR N="Record"><AV>Preparing modules for first use.</AV><AI>0</AI><Nil /><PI>-1</PI><PC>-1</PC><T>Completed</T><SR>-1</SR><SD> </SD></PR></MS></Obj></Objs>
+2020-03-06T09:40:08-08:00: ==> azure-arm: Machine successfully restarted, moving on
+2020-03-06T09:40:08-08:00: ==> azure-arm: Provisioning with Powershell...
+2020-03-06T09:40:08-08:00: ==> azure-arm: Provisioning with powershell script: ./setup-post-net.ps1
+2020-03-06T09:41:43-08:00:     azure-arm:
+2020-03-06T09:41:43-08:00:     azure-arm: Success Restart Needed Exit Code      Feature Result
+2020-03-06T09:41:43-08:00:     azure-arm: ------- -------------- ---------      --------------
+2020-03-06T09:41:43-08:00:     azure-arm: True    No             Success        {Common HTTP Features, Default Document, D...
+2020-03-06T09:41:58-08:00:     azure-arm:
+2020-03-06T09:41:58-08:00:     azure-arm: Path   :
+2020-03-06T09:41:58-08:00:     azure-arm: Online : True
+2020-03-06T09:41:58-08:00:     azure-arm:
+2020-03-06T09:42:15-08:00:     azure-arm:
+2020-03-06T09:42:15-08:00:     azure-arm: Path   :
+2020-03-06T09:42:15-08:00:     azure-arm: Online : True
+2020-03-06T09:42:15-08:00:     azure-arm:
+2020-03-06T09:42:33-08:00:     azure-arm:
+2020-03-06T09:42:33-08:00:     azure-arm: Path   :
+2020-03-06T09:42:33-08:00:     azure-arm: Online : True
+2020-03-06T09:42:33-08:00:     azure-arm:
+2020-03-06T09:42:53-08:00:     azure-arm:
+2020-03-06T09:42:53-08:00:     azure-arm: Path   :
+2020-03-06T09:42:53-08:00:     azure-arm: Online : True
+2020-03-06T09:42:53-08:00:     azure-arm:
+2020-03-06T09:43:11-08:00:     azure-arm:
+2020-03-06T09:43:11-08:00:     azure-arm: Path   :
+2020-03-06T09:43:11-08:00:     azure-arm: Online : True
+2020-03-06T09:43:11-08:00:     azure-arm:
+2020-03-06T09:43:28-08:00:     azure-arm:
+2020-03-06T09:43:28-08:00:     azure-arm: Path   :
+2020-03-06T09:43:28-08:00:     azure-arm: Online : True
+2020-03-06T09:43:28-08:00:     azure-arm:
+2020-03-06T09:43:45-08:00:     azure-arm:
+2020-03-06T09:43:45-08:00:     azure-arm: Path   :
+2020-03-06T09:43:45-08:00:     azure-arm: Online : True
+2020-03-06T09:43:45-08:00:     azure-arm:
+2020-03-06T09:44:21-08:00:     azure-arm:
+2020-03-06T09:44:21-08:00:     azure-arm: Path   :
+2020-03-06T09:44:21-08:00:     azure-arm: Online : True
+2020-03-06T09:44:21-08:00:     azure-arm:
+2020-03-06T09:44:21-08:00:     azure-arm: Unpacking TPP installer...
+2020-03-06T10:01:32-08:00: ==> azure-arm: Provisioning with Powershell...
+2020-03-06T10:01:32-08:00: ==> azure-arm: Provisioning with powershell script: /var/folders/lk/sz2k47sx71ng6v7rznkp99mc0000gp/T/powershell-provisioner292434806
+2020-03-06T10:01:36-08:00:     azure-arm: IMAGE_STATE_COMPLETE
+2020-03-06T10:01:46-08:00:     azure-arm: IMAGE_STATE_GENERALIZE_RESEAL_TO_OOBE
+2020-03-06T10:01:46-08:00: ==> azure-arm: Querying the machine's properties ...
+2020-03-06T10:01:46-08:00: ==> azure-arm:  -> ResourceGroupName : 'packer-Resource-Group-6klvrygl45'
+2020-03-06T10:01:46-08:00: ==> azure-arm:  -> ComputeName       : 'pkrvm6klvrygl45'
+2020-03-06T10:01:47-08:00: ==> azure-arm:  -> Managed OS Disk   : '/subscriptions/83b3d700-8dee-4a8e-9e70-8be8bac97ec5/resourceGroups/PACKER-RESOURCE-GROUP-6KLVRYGL45/providers/Microsoft.Compute/disks/pkros6klvrygl45'
+2020-03-06T10:01:47-08:00: ==> azure-arm: Querying the machine's additional disks properties ...
+2020-03-06T10:01:47-08:00: ==> azure-arm:  -> ResourceGroupName : 'packer-Resource-Group-6klvrygl45'
+2020-03-06T10:01:47-08:00: ==> azure-arm:  -> ComputeName       : 'pkrvm6klvrygl45'
+2020-03-06T10:01:47-08:00: ==> azure-arm: Powering off machine ...
+2020-03-06T10:01:47-08:00: ==> azure-arm:  -> ResourceGroupName : 'packer-Resource-Group-6klvrygl45'
+2020-03-06T10:01:47-08:00: ==> azure-arm:  -> ComputeName       : 'pkrvm6klvrygl45'
+2020-03-06T10:02:24-08:00: ==> azure-arm: Azure token expired. Saving the refreshed token...
+2020-03-06T10:03:24-08:00: ==> azure-arm: Capturing image ...
+2020-03-06T10:03:24-08:00: ==> azure-arm:  -> Compute ResourceGroupName : 'packer-Resource-Group-6klvrygl45'
+2020-03-06T10:03:24-08:00: ==> azure-arm:  -> Compute Name              : 'pkrvm6klvrygl45'
+2020-03-06T10:03:24-08:00: ==> azure-arm:  -> Compute Location          : 'West US'
+2020-03-06T10:03:24-08:00: ==> azure-arm:  -> Image ResourceGroupName   : 'packer-tpp'
+2020-03-06T10:03:24-08:00: ==> azure-arm:  -> Image Name                : 'WindowsTPPServer'
+2020-03-06T10:03:24-08:00: ==> azure-arm:  -> Image Location            : 'westus'
+2020-03-06T10:04:29-08:00: ==> azure-arm: Deleting resource group ...
+2020-03-06T10:04:29-08:00: ==> azure-arm:  -> ResourceGroupName : 'packer-Resource-Group-6klvrygl45'
+2020-03-06T10:04:29-08:00: ==> azure-arm: 
+==> azure-arm: The resource group was created by Packer, deleting ...
+2020-03-06T10:09:21-08:00: ==> azure-arm: Deleting the temporary OS disk ...
+2020-03-06T10:09:21-08:00: ==> azure-arm:  -> OS Disk : skipping, managed disk was used...
+2020-03-06T10:09:21-08:00: ==> azure-arm: Deleting the temporary Additional disk ...
+2020-03-06T10:09:21-08:00: ==> azure-arm:  -> Additional Disk : skipping, managed disk was used...
+2020-03-06T10:09:21-08:00: ==> azure-arm: Removing the created Deployment object: 'pkrdp6klvrygl45'
+2020-03-06T10:09:21-08:00: ==> azure-arm: ERROR: -> ResourceGroupNotFound : Resource group 'packer-Resource-Group-6klvrygl45' could not be found.
+==> azure-arm:
+2020-03-06T10:09:21-08:00: ==> azure-arm: Removing the created Deployment object: 'kvpkrdp6klvrygl45'
+2020-03-06T10:09:21-08:00: ==> azure-arm: ERROR: -> ResourceGroupNotFound : Resource group 'packer-Resource-Group-6klvrygl45' could not be found.
+==> azure-arm:
+2020-03-06T10:09:21-08:00: Build 'azure-arm' finished.
+
+==> Builds finished. The artifacts of successful builds are:
+--> azure-arm: Azure.ResourceManagement.VMImage:
+
+OSType: Windows
+ManagedImageResourceGroupName: packer-tpp
+ManagedImageName: WindowsTPPServer
+ManagedImageId: /subscriptions/83b3d700-8dee-4a8e-9e70-8be8bac97ec5/resourceGroups/packer-tpp/providers/Microsoft.Compute/images/WindowsTPPServer
+ManagedImageLocation: westus

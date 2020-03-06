@@ -1,0 +1,61 @@
+{
+    "variables": {
+        "subscription_id": "",
+        "venafi_user": "",
+        "venafi_password": ""
+    },
+    "sensitive-variables": [
+        "venafi_password"
+    ],
+    "builders": [
+        {
+            "type": "azure-arm",
+            "subscription_id": "{{ user `subscription_id` }}",
+
+            "managed_image_resource_group_name": "packer-tpp",
+            "managed_image_name": "WindowsTPPServer",
+            "os_type": "Windows",
+            "image_publisher": "MicrosoftWindowsServer",
+            "image_offer": "WindowsServer",
+            "image_sku": "2016-Datacenter",
+
+            "communicator": "winrm",
+            "winrm_username": "packer",
+            "winrm_use_ssl": true,
+            "winrm_insecure": true,
+            "winrm_timeout": "5m",
+            
+            "azure_tags": {
+                "Name": "Base-19.4TPP",
+                "Release": "19.4"
+            },
+            "location": "West US",
+            "vm_size": "Standard_A4_v2"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "powershell",
+            "script": "./setup-pre-net.ps1",
+            "environment_vars": [
+                "VenafiUser={{user `venafi_user` }}",
+                "VenafiPassword={{user `venafi_password` }}"
+            ]
+        },
+        {
+            "type": "windows-restart"
+        },
+        {
+            "type": "powershell",
+            "script": "./setup-post-net.ps1"
+        },
+        {
+            "type": "powershell",
+            "inline": [
+                "if( Test-Path $Env:SystemRoot\\windows\\system32\\Sysprep\\unattend.xml ){ rm $Env:SystemRoot\\windows\\system32\\Sysprep\\unattend.xml -Force}",
+                "& $env:SystemRoot\\System32\\Sysprep\\Sysprep.exe /oobe /generalize /quiet /quit /mode:vm",
+                "while($true) { $imageState = Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Setup\\State | Select ImageState; Write-Output $imageState.ImageState; if($imageState.ImageState -ne 'IMAGE_STATE_GENERALIZE_RESEAL_TO_OOBE') { Start-Sleep -s 10 } else { break } }"
+            ]
+        }
+    ]
+}

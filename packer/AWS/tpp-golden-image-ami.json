@@ -1,0 +1,67 @@
+{
+    "variables": {
+        "aws_access_key": "",
+        "aws_secret_key": "",
+        "region": "",
+        "winrm_password": "",
+        "venafi_user": "",
+        "venafi_password": ""
+    },
+    "sensitive-variables": [
+        "venafi_password",
+        "winrm_password",
+        "aws_access_key",
+        "aws_secret_key"
+    ],
+    "builders": [
+        {
+            "type": "amazon-ebs",
+            "access_key": "{{ user `aws_access_key` }}",
+            "secret_key": "{{ user `aws_secret_key` }}",
+            "region": "{{ user `region` }}",
+            "instance_type": "t2.medium",
+            "source_ami_filter": {
+                "filters": {
+                    "virtualization-type": "hvm",
+                    "name": "*Windows_Server-2016-English-Full-Base*",
+                    "root-device-type": "ebs"
+                },
+                "most_recent": true,
+                "owners": "amazon"
+            },
+            "ami_name": "latest-tpp-ami-{{timestamp}}",
+            "tags": {
+                "Name": "Base-19.4TPP",
+                "Release": "19.4"
+            },
+            "user_data_file": "./winrm-setup.ps1",
+            "communicator": "winrm",
+            "winrm_username": "Administrator",
+            "winrm_password": "{{user `winrm_password` }}"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "powershell",
+            "script": "./setup-pre-net.ps1",
+            "environment_vars": [
+                "VenafiUser={{user `venafi_user` }}",
+                "VenafiPassword={{user `venafi_password` }}"
+            ]
+        },
+        {
+            "type": "windows-restart"
+        },
+        {
+            "type": "powershell",
+            "script": "./setup-post-net.ps1"
+        },
+        {
+            "type": "powershell",
+            "inline": [
+                "C:/ProgramData/Amazon/EC2-Windows/Launch/Scripts/InitializeInstance.ps1 -Schedule",
+                "C:/ProgramData/Amazon/EC2-Windows/Launch/Scripts/SysprepInstance.ps1 -NoShutdown"
+            ]
+        }
+    ]
+}
