@@ -3,8 +3,8 @@ Start-Process -FilePath "C:\Users\Public\Downloads\vc_redist.x64" -ArgumentList 
 Invoke-WebRequest "http://go.microsoft.com/fwlink/?LinkId=863262" -Outfile "C:\Users\Public\Downloads\NDP472-KB4054531-Web.exe"
 New-Item -Path "C:\" -Name "sources\sxs" -ItemType "directory"
 Install-WindowsFeature -Name Net-Framework-Core -Source C:\source\sxs
-Invoke-WebRequest "https://download.microsoft.com/download/E/6/B/E6BFDC7A-5BCD-4C51-9912-635646DA801E/en-US/msodbcsql_17.4.2.1_x64.msi" -OutFile "C:\Users\Public\Downloads\msodbcsql_17.4.2.1_x64.msi"
-Start-Process "msiexec.exe" -Wait -ArgumentList '/quiet /passive /qn /i C:\Users\Public\Downloads\msodbcsql_17.4.2.1_x64.msi IACCEPTMSODBCSQLLICENSETERMS=YES ADDLOCAL=ALL' 
+Invoke-WebRequest "https://download.microsoft.com/download/E/6/B/E6BFDC7A-5BCD-4C51-9912-635646DA801E/en-US/17.5.2.1/x64/msodbcsql.msi" -OutFile "C:\Users\Public\Downloads\msodbcsql.msi"
+Start-Process "msiexec.exe" -Wait -ArgumentList '/quiet /passive /qn /i C:\Users\Public\Downloads\msodbcsql.msi IACCEPTMSODBCSQLLICENSETERMS=YES ADDLOCAL=ALL' 
 Invoke-WebRequest "https://go.microsoft.com/fwlink/?linkid=2082790" -OutFile "C:\Users\Public\Downloads\MsSqlCmdLnUtils.msi"
 Start-Process "msiexec.exe" -Wait -ArgumentList '/quiet /passive /qn /i C:\Users\Public\Downloads\MsSqlCmdLnUtils.msi IACCEPTMSSQLCMDLNUTILSLICENSETERMS=YES' 
 Invoke-WebRequest "https://download.microsoft.com/download/C/9/E/C9E8180D-4E51-40A6-A9BF-776990D8BCA9/rewrite_amd64.msi" -Outfile "C:\Users\Public\Downloads\rewrite_amd64.msi"
