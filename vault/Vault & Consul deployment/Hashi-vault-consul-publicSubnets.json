@@ -1,0 +1,676 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Used to setup a simple Consul Server + Vault Server w/ Consul Agent. This template is used in existing VPCs that have at least 1 public and 1 private subnet. Authored by: cris.madrigal@venafi.com",
+    "Metadata": {
+        "AWS::CloudFormationInterface": {
+            "ParameterGroups": [
+                {
+                    "Label": {
+                        "default": "Network Configuration"
+                    },
+                    "Parameters": [
+                        "VpcId",
+                        "VpcCIDR",
+                        "PublicSubnet01ID",
+                        "PublicSubnet02ID",
+                        "IngressLocation"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "EC2 Configuration"
+                    },
+                    "Parameters": [
+                        "InstanceType",
+                        "VolSize",
+                        "LatestAmiId"
+                    ]
+                }
+            ],
+            "ParameterLabels": {
+                "IngressLocation": {
+                    "default": "IP or CIDR block for ingress access: "
+                },
+                "InstanceType": {
+                    "default": "Amazon Linux 2 EC2 instance type: "
+                },
+                "LatestAmiId": {
+                    "default": "Id of latest Amazon Linux 2 AMI: "
+                },
+                "PublicSubnet01ID": {
+                    "default": "Public CIDR Block 1 ID: "
+                },
+                "PublicSubnet02ID": {
+                    "default": "Public CIDR Block 2 ID: "
+                },
+                "VolSize": {
+                    "default": "Instance volume size (GiB): "
+                },
+                "VpcCIDR": {
+                    "default": "CIDR block for the VPC: "
+                },
+                "VpcId": {
+                    "default": "ID of VPC: "
+                }
+            }
+        }
+    },
+    "Parameters": {
+        "IngressLocation": {
+            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+            "ConstraintDescription": "Must be a valid IP CIDR range of the form x.x.x.x/x",
+            "Description": "CIDR block (IP address range). Use 0.0.0.0/0 to allow access from all locations. Ideally, set this to your personal IP address. You can always manually change this later if needed.",
+            "MaxLength": "18",
+            "MinLength": "9",
+            "Type": "String"
+        },
+        "InstanceType": {
+            "Type": "String",
+            "Default": "t3.medium",
+            "AllowedValues": [
+                "a1.medium",
+                "a1.large",
+                "a1.xlarge",
+                "a1.2xlarge",
+                "a1.4xlarge",
+                "c1.medium",
+                "c1.xlarge",
+                "c3.large",
+                "c3.xlarge",
+                "c3.2xlarge",
+                "c3.4xlarge",
+                "c3.8xlarge",
+                "c4.large",
+                "c4.xlarge",
+                "c4.2xlarge",
+                "c4.4xlarge",
+                "c4.8xlarge",
+                "c5.large",
+                "c5.xlarge",
+                "c5.2xlarge",
+                "c5.4xlarge",
+                "c5.9xlarge",
+                "c5.12xlarge",
+                "c5.18xlarge",
+                "c5.24xlarge",
+                "c5.metal",
+                "c5d.large",
+                "c5d.xlarge",
+                "c5d.2xlarge",
+                "c5d.4xlarge",
+                "c5d.9xlarge",
+                "c5d.18xlarge",
+                "c5n.large",
+                "c5n.xlarge",
+                "c5n.2xlarge",
+                "c5n.4xlarge",
+                "c5n.9xlarge",
+                "c5n.18xlarge",
+                "cc2.8xlarge",
+                "cr1.8xlarge",
+                "d2.xlarge",
+                "d2.2xlarge",
+                "d2.4xlarge",
+                "d2.8xlarge",
+                "f1.2xlarge",
+                "f1.4xlarge",
+                "f1.16xlarge",
+                "g2.2xlarge",
+                "g2.8xlarge",
+                "g3s.xlarge",
+                "g3.4xlarge",
+                "g3.8xlarge",
+                "g3.16xlarge",
+                "h1.2xlarge",
+                "h1.4xlarge",
+                "h1.8xlarge",
+                "h1.16xlarge",
+                "hs1.8xlarge",
+                "i2.xlarge",
+                "i2.2xlarge",
+                "i2.4xlarge",
+                "i2.8xlarge",
+                "i3.large",
+                "i3.xlarge",
+                "i3.2xlarge",
+                "i3.4xlarge",
+                "i3.8xlarge",
+                "i3.16xlarge",
+                "i3.metal",
+                "i3en.large",
+                "i3en.xlarge",
+                "i3en.2xlarge",
+                "i3en.3xlarge",
+                "i3en.6xlarge",
+                "i3en.12xlarge",
+                "i3en.24xlarge",
+                "m1.small",
+                "m1.medium",
+                "m1.large",
+                "m1.xlarge",
+                "m2.xlarge",
+                "m2.2xlarge",
+                "m2.4xlarge",
+                "m3.medium",
+                "m3.large",
+                "m3.xlarge",
+                "m3.2xlarge",
+                "m4.large",
+                "m4.xlarge",
+                "m4.2xlarge",
+                "m4.4xlarge",
+                "m4.10xlarge",
+                "m4.16xlarge",
+                "m5.large",
+                "m5.xlarge",
+                "m5.2xlarge",
+                "m5.4xlarge",
+                "m5.8xlarge",
+                "m5.12xlarge",
+                "m5.16xlarge",
+                "m5.24xlarge",
+                "m5.metal",
+                "m5a.large",
+                "m5a.xlarge",
+                "m5a.2xlarge",
+                "m5a.4xlarge",
+                "m5a.8xlarge",
+                "m5a.12xlarge",
+                "m5a.16xlarge",
+                "m5a.24xlarge",
+                "m5ad.large",
+                "m5ad.xlarge",
+                "m5ad.2xlarge",
+                "m5ad.4xlarge",
+                "m5ad.12xlarge",
+                "m5ad.24xlarge",
+                "m5d.large",
+                "m5d.xlarge",
+                "m5d.2xlarge",
+                "m5d.4xlarge",
+                "m5d.8xlarge",
+                "m5d.12xlarge",
+                "m5d.16xlarge",
+                "m5d.24xlarge",
+                "m5d.metal",
+                "p2.xlarge",
+                "p2.8xlarge",
+                "p2.16xlarge",
+                "p3.2xlarge",
+                "p3.8xlarge",
+                "p3.16xlarge",
+                "p3dn.24xlarge",
+                "g4dn.xlarge",
+                "g4dn.2xlarge",
+                "g4dn.4xlarge",
+                "g4dn.8xlarge",
+                "g4dn.12xlarge",
+                "g4dn.16xlarge",
+                "g4dn.metal",
+                "r3.large",
+                "r3.xlarge",
+                "r3.2xlarge",
+                "r3.4xlarge",
+                "r3.8xlarge",
+                "r4.large",
+                "r4.xlarge",
+                "r4.2xlarge",
+                "r4.4xlarge",
+                "r4.8xlarge",
+                "r4.16xlarge",
+                "r5.large",
+                "r5.xlarge",
+                "r5.2xlarge",
+                "r5.4xlarge",
+                "r5.8xlarge",
+                "r5.12xlarge",
+                "r5.16xlarge",
+                "r5.24xlarge",
+                "r5.metal",
+                "r5a.large",
+                "r5a.xlarge",
+                "r5a.2xlarge",
+                "r5a.4xlarge",
+                "r5a.8xlarge",
+                "r5a.12xlarge",
+                "r5a.16xlarge",
+                "r5a.24xlarge",
+                "r5ad.large",
+                "r5ad.xlarge",
+                "r5ad.2xlarge",
+                "r5ad.4xlarge",
+                "r5ad.12xlarge",
+                "r5ad.24xlarge",
+                "r5d.large",
+                "r5d.xlarge",
+                "r5d.2xlarge",
+                "r5d.4xlarge",
+                "r5d.8xlarge",
+                "r5d.12xlarge",
+                "r5d.16xlarge",
+                "r5d.24xlarge",
+                "r5d.metal",
+                "t1.micro",
+                "t2.nano",
+                "t2.micro",
+                "t2.small",
+                "t2.medium",
+                "t2.large",
+                "t2.xlarge",
+                "t2.2xlarge",
+                "t3.nano",
+                "t3.micro",
+                "t3.small",
+                "t3.medium",
+                "t3.large",
+                "t3.xlarge",
+                "t3.2xlarge",
+                "t3a.nano",
+                "t3a.micro",
+                "t3a.small",
+                "t3a.medium",
+                "t3a.large",
+                "t3a.xlarge",
+                "t3a.2xlarge",
+                "u-6tb1.metal",
+                "u-9tb1.metal",
+                "u-12tb1.metal",
+                "x1.16xlarge",
+                "x1.32xlarge",
+                "x1e.xlarge",
+                "x1e.2xlarge",
+                "x1e.4xlarge",
+                "x1e.8xlarge",
+                "x1e.16xlarge",
+                "x1e.32xlarge",
+                "z1d.large",
+                "z1d.xlarge",
+                "z1d.2xlarge",
+                "z1d.3xlarge",
+                "z1d.6xlarge",
+                "z1d.12xlarge",
+                "z1d.metal"
+            ],
+            "ConstraintDescription": "Must be a valid EC2 instance type",
+            "Description": "Instance type for Amazon Linux Instance"
+        },
+        "LatestAmiId": {
+            "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+            "Default": "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2",
+            "Description": "Pulls the latest Amazon Linux 2 AMI."
+        },
+        "PublicSubnet01ID": {
+            "Description": "ID of public subnet 1",
+            "Type": "AWS::EC2::Subnet::Id"
+        },
+        "PublicSubnet02ID": {
+            "Description": "ID of public subnet 2",
+            "Type": "AWS::EC2::Subnet::Id"
+        },
+        "VolSize": {
+            "Type": "Number",
+            "Default": 25,
+            "MinValue": 20,
+            "MaxValue": 16384,
+            "Description": "Volume Size (GB) for Amazon linux instance.",
+            "ConstraintDescription": "Volume size must be numeric and between 20 and 16384"
+        },
+        "VpcCIDR": {
+            "Type": "String",
+            "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$",
+            "Description": "CIDR Block for the VPC"
+        },
+        "VpcId": {
+            "Type": "AWS::EC2::VPC::Id",
+            "Description": "ID of your existing VPC"
+        }
+    },
+    "Rules": {
+        "SubnetsInVPC": {
+            "Assertions": [
+                {
+                    "Assert": {
+                        "Fn::EachMemberIn": [
+                            {
+                                "Fn::ValueOfAll": [
+                                    "AWS::EC2::Subnet::Id",
+                                    "VpcId"
+                                ]
+                            },
+                            {
+                                "Fn::RefAll": "AWS::EC2::VPC::Id"
+                            }
+                        ]
+                    },
+                    "AssertDescription": "All subnets must be in the VPC"
+                }
+            ]
+        }
+    },
+    "Resources": {
+        "ConsulServerInstance":{
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "ImageId": {
+                    "Ref": "LatestAmiId"
+                },
+                "InstanceType": {
+                    "Ref": "InstanceType"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "ConsulSecurityGroup"
+                    }
+                ],
+                "SubnetId": {
+                    "Ref": "PublicSubnet01ID"
+                },
+                "IamInstanceProfile": {
+                    "Ref": "EC2InstanceProfile"
+                },
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/sda1",
+                        "Ebs": {
+                            "VolumeSize": {
+                                "Ref": "VolSize"
+                            }
+                        }
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Sub": "${AWS::StackName} - Consul Server"
+                        }
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "yum update -y\n",
+                                "yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm\n",
+                                "systemctl daemon-reload\n",
+                                "systemctl restart amazon-ssm-agent\n",
+                                "curl -LO https://releases.hashicorp.com/consul/1.6.1/consul_1.6.1_linux_amd64.zip\n",
+                                "unzip consul_1.6.1_linux_amd64.zip\n",
+                                "mv consul /usr/bin\n",
+                                "rm consul_1.6.1_linux_amd64.zip\n",
+                                "useradd --system --home /etc/consul.d --shell /bin/false consul\n",
+                                "ConsulIP=$(curl -s 'http://169.254.169.254/latest/meta-data/local-ipv4')\n",
+                                "mkdir /usr/local/etc/consul\n",
+                                "touch /usr/local/etc/consul/consul_s1.json\n",
+                                "cd /usr/local/etc/consul\n",
+                                "echo '{' >> consul_s1.json\n", 
+                                "echo '  \"server\": true,' >> consul_s1.json\n",
+                                "echo '  \"node_name\": \"consul_s1\",' >> consul_s1.json\n",
+                                "echo '  \"datacenter\": \"dc1\",' >> consul_s1.json\n",
+                                "echo '  \"data_dir\": \"/var/consul/data\",' >> consul_s1.json\n",
+                                "echo '  \"bind_addr\": \"0.0.0.0\",' >> consul_s1.json\n",
+                                "echo '  \"client_addr\": \"0.0.0.0\",' >> consul_s1.json\n",
+                                "echo '  \"advertise_addr\": \"'\"$ConsulIP\"'\",' >> consul_s1.json\n",
+                                "echo '  \"bootstrap_expect\": 1,' >> consul_s1.json\n",
+                                "echo '  \"retry_join\": [\"'\"$ConsulIP\"'\"],' >> consul_s1.json\n",
+                                "echo '  \"ui\": true,' >> consul_s1.json\n",
+                                "echo '  \"log_level\": \"DEBUG\",' >> consul_s1.json\n",
+                                "echo '  \"enable_syslog\": true,' >> consul_s1.json\n",
+                                "echo '  \"acl_enforce_version_8\": false' >> consul_s1.json\n",
+                                "echo '}' >> consul_s1.json\n",
+                                "cd /etc/systemd/system\n",
+                                "curl -LO https://raw.githubusercontent.com/cdmadrigal/SampleCloudFormationTemplates/master/Hashicorp/consul-server/consul.service\n",
+                                "systemctl daemon-reload\n",
+                                "install -d -o consul -g consul /var/consul/\n",
+                                "systemctl start consul"
+                            ]
+                        ]
+                    }
+                }
+            }
+        },
+        "VaultServerInstance": {
+            "Type": "AWS::EC2::Instance",
+            "DependsOn": "ConsulServerInstance",
+            "Properties": {
+                "ImageId": {
+                    "Ref": "LatestAmiId"
+                },
+                "InstanceType": {
+                    "Ref": "InstanceType"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "VaultSecurityGroup"
+                    }
+                ],
+                "SubnetId": {
+                    "Ref": "PublicSubnet02ID"
+                },
+                "IamInstanceProfile": {
+                    "Ref": "EC2InstanceProfile"
+                },
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/sda1",
+                        "Ebs": {
+                            "VolumeSize": {
+                                "Ref": "VolSize"
+                            }
+                        }
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Sub": "${AWS::StackName} - Vault Server"
+                        }
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "yum update -y\n",
+                                "yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm\n",
+                                "systemctl daemon-reload\n",
+                                "systemctl restart amazon-ssm-agent\n",
+                                "curl -LO https://releases.hashicorp.com/vault/1.2.3/vault_1.2.3_linux_amd64.zip\n",
+                                "unzip vault_1.2.3_linux_amd64.zip\n",
+                                "mv vault /usr/bin\n",
+                                "rm vault_1.2.3_linux_amd64.zip\n",
+                                "curl -LO https://releases.hashicorp.com/consul/1.6.1/consul_1.6.1_linux_amd64.zip\n",
+                                "unzip consul_1.6.1_linux_amd64.zip\n",
+                                "mv consul /usr/bin\n",
+                                "rm consul_1.6.1_linux_amd64.zip\n",
+                                "useradd --system --home /etc/consul.d --shell /bin/false consul\n",
+                                "useradd --system --home /etc/vault.d --shell /bin/false vault\n",
+                                "VaultIP=$(curl -s 'http://169.254.169.254/latest/meta-data/local-ipv4')\n",
+                                "mkdir /usr/local/etc/consul\n",
+                                "touch /usr/local/etc/consul/consul_c1.json\n",
+                                "cd /usr/local/etc/consul\n",
+                                "echo '{' >> consul_c1.json\n", 
+                                "echo '  \"server\": false,' >> consul_c1.json\n",
+                                "echo '  \"datacenter\": \"dc1\",' >> consul_c1.json\n",
+                                "echo '  \"node_name\": \"consul_c1\",' >> consul_c1.json\n",
+                                "echo '  \"data_dir\": \"/var/consul/data\",' >> consul_c1.json\n",
+                                "echo '  \"bind_addr\": \"'\"$VaultIP\"'\",' >> consul_c1.json\n",
+                                "echo '  \"client_addr\": \"127.0.0.1\",' >> consul_c1.json\n",
+                                "echo '  \"retry_join\": [\"",
+                                {
+                                    "Fn::GetAtt": [
+                                        "ConsulServerInstance",
+                                        "PrivateIp"
+                                    ]
+                                },
+                                "\"],' >> consul_c1.json\n",
+                                "echo '  \"log_level\": \"DEBUG\",' >> consul_c1.json\n",
+                                "echo '  \"enable_syslog\": true,' >> consul_c1.json\n",
+                                "echo '  \"acl_enforce_version_8\": false' >> consul_c1.json\n",
+                                "echo '}' >> consul_c1.json\n",
+                                "cd /etc/systemd/system\n",
+                                "curl -LO https://raw.githubusercontent.com/cdmadrigal/SampleCloudFormationTemplates/master/Hashicorp/consul-agent/consul.service\n",
+                                "systemctl daemon-reload\n",
+                                "install -d -o consul -g consul /var/consul/\n",
+                                "systemctl start consul\n",
+                                "mkdir /etc/vault/\n",
+                                "cd /etc/vault\n",
+                                "curl -LO https://raw.githubusercontent.com/cdmadrigal/SampleCloudFormationTemplates/master/Hashicorp/vault-server/vault_s1.hcl\n",
+                                "sed -i \"s+10.1.42.201+$VaultIP+g\" vault_s1.hcl\n",
+                                "cd /etc/systemd/system\n",
+                                "curl -LO https://raw.githubusercontent.com/cdmadrigal/SampleCloudFormationTemplates/master/Hashicorp/vault-server/vault.service\n",
+                                "export VAULT_ADDR=http://127.0.0.1:8200\n",
+                                "systemctl daemon-reload\n",
+                                "systemctl start vault"
+                            ]
+                        ]
+                    }
+                }
+            }
+        },
+        "ConsulSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VpcId"
+                },
+                "GroupDescription": "Security Group for Consul Server.",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8300",
+                        "ToPort": "8301",
+                        "CidrIp": {
+                            "Ref": "VpcCIDR"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8500",
+                        "ToPort": "8500",
+                        "CidrIp": {
+                            "Ref": "IngressLocation"
+                        }
+                    }
+                ]
+            }
+        },
+        "VaultSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VpcId"
+                },
+                "GroupDescription": "Security Group for Vault Server.",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8300",
+                        "ToPort": "8300",
+                        "CidrIp": {
+                            "Ref": "VpcCIDR"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8200",
+                        "ToPort": "8200",
+                        "CidrIp": {
+                            "Ref": "VpcCIDR"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8200",
+                        "ToPort": "8200",
+                        "CidrIp": {
+                            "Ref": "IngressLocation"
+                        }
+                    }
+                ]
+            }
+        },
+        "VaultEIP": {
+            "Type": "AWS::EC2::EIP",
+            "Properties": {
+                "Domain": "vpc",
+                "InstanceId": {
+                    "Ref": "VaultServerInstance"
+                }
+            }
+        },
+        "ConsulEIP": {
+            "Type": "AWS::EC2::EIP",
+            "Properties": {
+                "Domain": "vpc",
+                "InstanceId": {
+                    "Ref": "ConsulServerInstance"
+                }
+            }
+        },
+        "InstanceSSMAccessRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "Path": "/",
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "ec2.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+                ],
+                "Policies": [
+                    {
+                        "PolicyName": "ssm-start-stop",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "ssm:StartSession",
+                                        "ssm:ResumeSession",
+                                        "ssm:TerminateSession",
+                                        "ssm:DescribeSessions",
+                                        "ssm:GetConnectionStatus",
+                                        "ssm:DescribeInstances",
+                                        "kms:GenerateDataKey"
+                                    ],
+                                    "Resource": "*"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "EC2InstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Path": "/",
+                "Roles": [
+                    {
+                        "Ref": "InstanceSSMAccessRole"
+                    }
+                ]
+            }
+        }
+    }
+}
