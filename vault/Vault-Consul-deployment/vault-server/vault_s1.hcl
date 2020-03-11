@@ -1,3 +1,5 @@
+plugin_directory = "/etc/vault/vault_plugins"
+
 ui = "true"
 
 listener "tcp" {

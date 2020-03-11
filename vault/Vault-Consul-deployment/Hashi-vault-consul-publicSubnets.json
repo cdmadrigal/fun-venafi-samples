@@ -421,7 +421,7 @@
                                 "echo '  \"acl_enforce_version_8\": false' >> consul_s1.json\n",
                                 "echo '}' >> consul_s1.json\n",
                                 "cd /etc/systemd/system\n",
-                                "curl -LO https://raw.githubusercontent.com/cdmadrigal/SampleCloudFormationTemplates/master/Hashicorp/consul-server/consul.service\n",
+                                "curl -LO https://raw.githubusercontent.com/cdmadrigal/fun-venafi-samples/master/vault/Vault-Consul-deployment/consul-server/consul.service\n",
                                 "systemctl daemon-reload\n",
                                 "install -d -o consul -g consul /var/consul/\n",
                                 "systemctl start consul"
@@ -488,6 +488,9 @@
                                 "unzip consul_1.6.1_linux_amd64.zip\n",
                                 "mv consul /usr/bin\n",
                                 "rm consul_1.6.1_linux_amd64.zip\n",
+                                "curl -LO https://github.com/Venafi/vault-pki-backend-venafi/releases/download/v0.5.3/venafi-pki-backend_v0.5.3+650_linux.zip\n",
+                                "unzip venafi-pki-backend_v0.5.3+650_linux.zip\n",
+                                "mkdir --parents /etc/vault/vault_plugins\n",
                                 "useradd --system --home /etc/consul.d --shell /bin/false consul\n",
                                 "useradd --system --home /etc/vault.d --shell /bin/false vault\n",
                                 "VaultIP=$(curl -s 'http://169.254.169.254/latest/meta-data/local-ipv4')\n",
@@ -514,19 +517,21 @@
                                 "echo '  \"acl_enforce_version_8\": false' >> consul_c1.json\n",
                                 "echo '}' >> consul_c1.json\n",
                                 "cd /etc/systemd/system\n",
-                                "curl -LO https://raw.githubusercontent.com/cdmadrigal/SampleCloudFormationTemplates/master/Hashicorp/consul-agent/consul.service\n",
+                                "curl -LO https://raw.githubusercontent.com/cdmadrigal/fun-venafi-samples/master/vault/Vault-Consul-deployment/consul-agent/consul.service\n",
                                 "systemctl daemon-reload\n",
                                 "install -d -o consul -g consul /var/consul/\n",
                                 "systemctl start consul\n",
-                                "mkdir /etc/vault/\n",
                                 "cd /etc/vault\n",
-                                "curl -LO https://raw.githubusercontent.com/cdmadrigal/SampleCloudFormationTemplates/master/Hashicorp/vault-server/vault_s1.hcl\n",
+                                "curl -LO https://raw.githubusercontent.com/cdmadrigal/fun-venafi-samples/master/vault/Vault-Consul-deployment/vault-server/vault_s1.hcl\n",
                                 "sed -i \"s+10.1.42.201+$VaultIP+g\" vault_s1.hcl\n",
                                 "cd /etc/systemd/system\n",
-                                "curl -LO https://raw.githubusercontent.com/cdmadrigal/SampleCloudFormationTemplates/master/Hashicorp/vault-server/vault.service\n",
+                                "curl -LO https://raw.githubusercontent.com/cdmadrigal/fun-venafi-samples/master/vault/Vault-Consul-deployment/vault-server/vault.service\n",
                                 "export VAULT_ADDR=http://127.0.0.1:8200\n",
                                 "systemctl daemon-reload\n",
-                                "systemctl start vault"
+                                "systemctl start vault\n",
+                                "SHA256=$(shasum -a 256 /etc/vault/vault_plugins/venafi-pki-backend| cut -d' ' -f1)\n",
+                                "vault write sys/plugins/catalog/secret/venafi-pki-backend sha_256=\"${SHA256}\" command=\"venafi-pki-backend\"\n",
+                                "vault secrets enable -path=venafi-pki -plugin-name=venafi-pki-backend plugin"
                             ]
                         ]
                     }
@@ -543,16 +548,16 @@
                 "SecurityGroupIngress": [
                     {
                         "IpProtocol": "tcp",
-                        "FromPort": "8300",
-                        "ToPort": "8301",
+                        "FromPort": 8300,
+                        "ToPort": 8301,
                         "CidrIp": {
                             "Ref": "VpcCIDR"
                         }
                     },
                     {
                         "IpProtocol": "tcp",
-                        "FromPort": "8500",
-                        "ToPort": "8500",
+                        "FromPort": 8500,
+                        "ToPort": 8500,
                         "CidrIp": {
                             "Ref": "IngressLocation"
                         }
@@ -570,24 +575,24 @@
                 "SecurityGroupIngress": [
                     {
                         "IpProtocol": "tcp",
-                        "FromPort": "8300",
-                        "ToPort": "8300",
+                        "FromPort": 8300,
+                        "ToPort": 8300,
                         "CidrIp": {
                             "Ref": "VpcCIDR"
                         }
                     },
                     {
                         "IpProtocol": "tcp",
-                        "FromPort": "8200",
-                        "ToPort": "8200",
+                        "FromPort": 8200,
+                        "ToPort": 8200,
                         "CidrIp": {
                             "Ref": "VpcCIDR"
                         }
                     },
                     {
                         "IpProtocol": "tcp",
-                        "FromPort": "8200",
-                        "ToPort": "8200",
+                        "FromPort": 8200,
+                        "ToPort": 8200,
                         "CidrIp": {
                             "Ref": "IngressLocation"
                         }
