@@ -477,6 +477,7 @@
                             [
                                 "#!/bin/bash\n",
                                 "yum update -y\n",
+                                "yum install -y perl-Digest-SHA\n",
                                 "yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm\n",
                                 "systemctl daemon-reload\n",
                                 "systemctl restart amazon-ssm-agent\n",
@@ -491,6 +492,13 @@
                                 "curl -LO https://github.com/Venafi/vault-pki-backend-venafi/releases/download/v0.5.3/venafi-pki-backend_v0.5.3+650_linux.zip\n",
                                 "unzip venafi-pki-backend_v0.5.3+650_linux.zip\n",
                                 "mkdir --parents /etc/vault/vault_plugins\n",
+                                "mv venafi-pki-backend /etc/vault/vault_plugins\n",
+                                "rm venafi-pki-backend_v0.5.3+650_linux.zip\n",
+                                "curl -fOSL https://github.com/Venafi/vault-pki-monitor-venafi/releases/download/v0.6.0/vault-pki-monitor-venafi_v0.6.0+496_linux_strict.zip\n",
+                                "unzip vault-pki-monitor-venafi_v0.6.0+496_linux_strict.zip\n",
+                                "sha256sum vault-pki-monitor-venafi_v0.6.0+496_linux_strict.zip\n",
+                                "mv vault-pki-monitor-venafi_strict /etc/vault/vault_plugins\n",
+                                "rm vault-pki-monitor-venafi_v0.6.0+496_linux_strict.zip\n",
                                 "useradd --system --home /etc/consul.d --shell /bin/false consul\n",
                                 "useradd --system --home /etc/vault.d --shell /bin/false vault\n",
                                 "VaultIP=$(curl -s 'http://169.254.169.254/latest/meta-data/local-ipv4')\n",
@@ -528,10 +536,7 @@
                                 "curl -LO https://raw.githubusercontent.com/cdmadrigal/fun-venafi-samples/master/vault/Vault-Consul-deployment/vault-server/vault.service\n",
                                 "export VAULT_ADDR=http://127.0.0.1:8200\n",
                                 "systemctl daemon-reload\n",
-                                "systemctl start vault\n",
-                                "SHA256=$(shasum -a 256 /etc/vault/vault_plugins/venafi-pki-backend| cut -d' ' -f1)\n",
-                                "vault write sys/plugins/catalog/secret/venafi-pki-backend sha_256=\"${SHA256}\" command=\"venafi-pki-backend\"\n",
-                                "vault secrets enable -path=venafi-pki -plugin-name=venafi-pki-backend plugin"
+                                "systemctl start vault"
                             ]
                         ]
                     }
