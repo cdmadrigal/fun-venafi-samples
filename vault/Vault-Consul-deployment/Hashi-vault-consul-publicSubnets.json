@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "Used to setup a simple Consul Server + Vault Server w/ Consul Agent. This template is used in existing VPCs that have at least 1 public and 1 private subnet. Authored by: cris.madrigal@venafi.com",
+    "Description": "Used to setup a simple Consul Server + Vault Server w/ Consul Agent. This template has the binaries to run Venafi Vault plugins already intalled on it. This template is used in existing VPCs that have at least 1 public and 1 private subnet. Authored by: cris.madrigal@venafi.com",
     "Metadata": {
         "AWS::CloudFormationInterface": {
             "ParameterGroups": [
